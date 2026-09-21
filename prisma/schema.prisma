@@ -36,6 +36,7 @@ model Project {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   projectImages ProjectImage[]
+  tags Tag[]
 }
 
 model Skill {
@@ -70,13 +71,14 @@ model ContactMessage {
 }
 
 model Media {
-  id        String   @id @default(cuid())
-  name      String
-  url       String
-  type      String?
-  folder    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String        @id @default(cuid())
+  name         String
+  url          String
+  type         String?
+  folder       String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  siteProfiles SiteProfile[]
 }
 
 model Tag {
@@ -84,6 +86,7 @@ model Tag {
   name      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  projects Project[]
 }
 
 model ProjectImage {
@@ -119,4 +122,28 @@ model Education {
   detail    String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+}
+
+model SiteProfile {
+  id                    String   @id @default(cuid())
+  displayName           String
+  headline              String
+  shortBio              String
+  longBio               String?
+  location              String?
+  avatarMediaId         String?
+  emailPublic           String?
+  whatsappNumber        String?
+  githubUrl             String?
+  linkedinUrl           String?
+  instagramUrl          String?
+  cvUrl                 String?
+  heroCtaPrimaryLabel   String?
+  heroCtaPrimaryHref    String?
+  heroCtaSecondaryLabel String?
+  heroCtaSecondaryHref  String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  avatarMedia           Media?   @relation(fields: [avatarMediaId], references: [id], onDelete: SetNull)
 }
