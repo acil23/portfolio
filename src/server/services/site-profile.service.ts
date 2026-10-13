@@ -1,4 +1,7 @@
-import { getSiteProfile } from "@/server/repositories/site-profile.repository";
+import {
+  getSiteProfile,
+  updateSiteProfile,
+} from "@/server/repositories/site-profile.repository";
 
 export async function fetchSiteProfile() {
   const siteProfile = await getSiteProfile();
@@ -8,4 +11,11 @@ export async function fetchSiteProfile() {
   }
 
   return siteProfile;
+}
+
+export async function updateSiteProfileById(
+  id: string,
+  data: Parameters<typeof updateSiteProfile>[1]
+) {
+  return updateSiteProfile(id, data);
 }
