@@ -1,8 +1,7 @@
 "use client";
-
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-
+import Link from "next/link";
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -10,85 +9,45 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const fallbackError = searchParams.get("error") === "forbidden" ? "Akses ditolak." : null;
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  const fallbackError = searchParams.get("error") === "forbidden" ? "Access denied." : null;
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setIsSubmitting(true);
     setError(null);
-
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        setError("Email atau password tidak valid.");
-        return;
-      }
-
+      const res = await fetch("/api/auth/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email, password }) });
+      if (!res.ok) { setError("Invalid email or password."); return; }
       router.push("/dashboard");
       router.refresh();
-    } catch {
-      setError("Login gagal. Coba lagi.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    } catch { setError("Login failed. Try again."); } finally { setIsSubmitting(false); }
   }
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-950 px-4 text-neutral-100">
-      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur">
-        <div className="mb-8 space-y-3">
-          <p className="text-sm uppercase tracking-[0.24em] text-neutral-400">Admin Access</p>
-          <h1 className="text-3xl font-semibold tracking-tight">Masuk ke dashboard</h1>
-          <p className="text-sm leading-6 text-neutral-400">
-            Gunakan akun admin untuk mengelola konten portfolio.
-          </p>
+    <div className="relative flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 py-12">
+      <div className="grain pointer-events-none absolute inset-0 opacity-[0.04]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-gold/[0.06] via-transparent to-transparent" />
+      <div className="relative w-full max-w-[420px]">
+        <div className="mb-8 text-center">
+          <Link href="/" className="font-display text-[22px] tracking-[-0.02em] text-white">AKLEIN<span className="text-gold">.</span></Link>
+          <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.16em] text-white/30">Content Studio — Admin Access</p>
         </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <label className="block space-y-2">
-            <span className="text-sm text-neutral-300">Email</span>
-            <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="w-full rounded-2xl border border-white/10 bg-neutral-900 px-4 py-3 text-neutral-100 outline-none transition focus:border-white/30"
-              autoComplete="email"
-              required
-            />
-          </label>
-
-          <label className="block space-y-2">
-            <span className="text-sm text-neutral-300">Password</span>
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className="w-full rounded-2xl border border-white/10 bg-neutral-900 px-4 py-3 text-neutral-100 outline-none transition focus:border-white/30"
-              autoComplete="current-password"
-              required
-            />
-          </label>
-
-          {(error || fallbackError) && (
-            <p className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-              {error ?? fallbackError}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="inline-flex w-full items-center justify-center rounded-2xl bg-white px-4 py-3 font-medium text-neutral-950 transition hover:bg-neutral-200 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isSubmitting ? "Memproses..." : "Masuk"}
-          </button>
-        </form>
+        <div className="rounded-[24px] border border-white/10 bg-white/[0.06] p-8 backdrop-blur-xl">
+          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-gold">Sign in</p>
+          <h1 className="font-display mt-2 text-[26px] tracking-[-0.02em] text-white">Welcome back.</h1>
+          <p className="mt-2 text-sm leading-relaxed text-white/50">Manage projects, skills, and inbox.</p>
+          <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+            <label className="block space-y-1.5">
+              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/50">Email</span>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@aklein.tech" className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-gold/40" autoComplete="email" required />
+            </label>
+            <label className="block space-y-1.5">
+              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/50">Password</span>
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-gold/40" autoComplete="current-password" required />
+            </label>
+            {(error || fallbackError) && <p className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">{error ?? fallbackError}</p>}
+            <button type="submit" disabled={isSubmitting} className="inline-flex h-12 w-full items-center justify-center rounded-full bg-white text-sm font-medium text-black transition hover:bg-white/90 disabled:opacity-60">{isSubmitting ? "Signing in..." : "Sign in →"}</button>
+          </form>
+          <p className="mt-6 text-center font-mono text-[10px] uppercase tracking-[0.08em] text-white/25"><Link href="/" className="hover:text-gold">← Back to site</Link></p>
+        </div>
       </div>
     </div>
   );
