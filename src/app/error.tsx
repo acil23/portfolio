@@ -8,17 +8,16 @@ export default function Error({
   reset: () => void;
 }) {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="text-center space-y-4">
-        <h1 className="text-2xl font-semibold">Terjadi kesalahan</h1>
-        <p className="text-sm text-muted-foreground">{error.message || "Coba muat ulang halaman."}</p>
-        <button
-          onClick={reset}
-          className="inline-flex items-center justify-center rounded-xl bg-foreground px-4 py-2 text-sm text-background"
-        >
-          Coba lagi
-        </button>
-      </div>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#0A0A0A] px-6 text-center">
+      <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-gold">Something went wrong</p>
+      <h1 className="font-display mt-3 text-3xl tracking-[-0.02em] text-white">A scene failed to load.</h1>
+      <p className="mt-2 max-w-md text-sm leading-relaxed text-white/50">{error.message || "An unexpected error occurred. Try again."}</p>
+      <button
+        onClick={reset}
+        className="mt-8 inline-flex h-11 items-center rounded-full bg-white px-6 text-sm font-medium text-black hover:bg-white/90"
+      >
+        Try again
+      </button>
     </div>
   );
 }

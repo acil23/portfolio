@@ -27,12 +27,23 @@ export const metadata: Metadata = {
   },
   description:
     "Portfolio full-stack Aklein — Next.js, TypeScript, Prisma & Supabase. Projects, skills, experience, and contact.",
+  keywords: ["Aklein", "Full-Stack Developer", "Next.js", "TypeScript", "Prisma", "Supabase", "Portfolio"],
+  authors: [{ name: "Aklein" }],
+  creator: "Aklein",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   openGraph: {
     type: "website",
     locale: "en_US",
     siteName: "aklein.tech",
+    title: "Aklein — Full-Stack Developer",
+    description: "Ideas crafted into digital reality. Next.js, TypeScript, Prisma & Supabase.",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Aklein — Full-Stack Developer",
+    description: "Ideas crafted into digital reality.",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

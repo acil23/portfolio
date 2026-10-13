@@ -20,7 +20,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const p = await fetchProjectBySlug(slug).catch(() => null);
   if (!p) return { title: "Project Not Found" };
-  return { title: p.title, description: p.summary };
+  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://aklein.tech";
+  const og = p.projectImages[0]?.url;
+  return {
+    title: p.title,
+    description: p.summary,
+    openGraph: {
+      title: p.title,
+      description: p.summary,
+      url: `${base}/projects/${p.slug}`,
+      images: og ? [{ url: og, alt: p.title }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: p.title,
+      description: p.summary,
+      images: og ? [og] : undefined,
+    },
+  };
 }
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ slug: string }> }) {
