@@ -9,7 +9,7 @@ import {
 } from "@/lib/api/response";
 
 export async function GET(request: Request) {
-  const auth = requireAdminApi(request);
+  const auth = await requireAdminApi(request);
   if (!auth.ok) return auth.response;
 
   try {
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const auth = requireAdminApi(request);
+  const auth = await requireAdminApi(request);
   if (!auth.ok) return auth.response;
 
   try {

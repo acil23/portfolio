@@ -1,37 +1,20 @@
-import { NextResponse } from "next/server";
+import { forbidden, unauthorized } from "@/lib/api/response";
+import { getAdminSessionFromRequest } from "@/lib/auth/session";
 
-export function requireAdminApi(request: Request) {
-  const authHeader = request.headers.get("authorization");
+export async function requireAdminApi(request: Request) {
+  const session = await getAdminSessionFromRequest(request);
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  if (!session) {
     return {
       ok: false,
-      response: NextResponse.json(
-        { message: "Unauthorized" },
-        { status: 401 }
-      ),
+      response: unauthorized(),
     };
   }
 
-  const token = authHeader.replace("Bearer ", "").trim();
-
-  if (!process.env.ADMIN_API_TOKEN) {
+  if (session.user.role !== "ADMIN") {
     return {
       ok: false,
-      response: NextResponse.json(
-        { message: "Admin API token is not configured" },
-        { status: 500 }
-      ),
-    };
-  }
-
-  if (token !== process.env.ADMIN_API_TOKEN) {
-    return {
-      ok: false,
-      response: NextResponse.json(
-        { message: "Forbidden" },
-        { status: 403 }
-      ),
+      response: forbidden(),
     };
   }
 

@@ -19,7 +19,7 @@ type RouteContext = {
 };
 
 export async function GET(request: Request, context: RouteContext) {
-  const auth = requireAdminApi(request);
+  const auth = await requireAdminApi(request);
   if (!auth.ok) return auth.response;
 
   try {
@@ -38,7 +38,7 @@ export async function GET(request: Request, context: RouteContext) {
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const auth = requireAdminApi(request);
+  const auth = await requireAdminApi(request);
   if (!auth.ok) return auth.response;
 
   try {
@@ -79,7 +79,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 }
 
 export async function DELETE(request: Request, context: RouteContext) {
-  const auth = requireAdminApi(request);
+  const auth = await requireAdminApi(request);
   if (!auth.ok) return auth.response;
 
   try {

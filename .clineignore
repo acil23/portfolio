@@ -1,0 +1,24 @@
+# Dependensi & Environment
+node_modules/
+__pycache__/
+.venv/
+venv/
+env/
+
+# Build output & Cache
+.next/
+dist/
+build/
+.cache/
+
+# File Rahasia & Database Lokal
+.env
+.env.local
+*.sqlite
+*.db
+
+# Media & Log
+*.log
+*.mp4
+*.png
+*.jpg
