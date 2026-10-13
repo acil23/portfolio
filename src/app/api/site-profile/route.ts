@@ -13,10 +13,7 @@ import {
   validationError,
 } from "@/lib/api/response";
 
-export async function GET(request: Request) {
-  const auth = await requireAdminApi(request);
-  if (!auth.ok) return auth.response;
-
+export async function GET() {
   try {
     const siteProfile = await fetchSiteProfile();
 

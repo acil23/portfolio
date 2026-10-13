@@ -1,6 +1,7 @@
 import {
   createProject,
   deleteProject,
+  getProjectById,
   getProjectBySlug,
   getProjectsAdmin,
   getPublishedProjects,
@@ -26,7 +27,7 @@ export async function fetchProjectsAdmin() {
 }
 
 export async function fetchProjectAdminById(id: string) {
-  return fetchProjectBySlug(id);
+  return getProjectById(id);
 }
 
 export async function createProjectAdmin(data: {

@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import {
   deleteProjectAdmin,
   fetchProjectAdminById,
@@ -7,11 +6,20 @@ import {
 import { updateProjectSchema } from "@/lib/validations/project";
 import { requireAdminApi } from "@/lib/auth/admin-guard";
 import {
+  error as apiError,
   internalError,
   notFound,
   success,
   validationError,
 } from "@/lib/api/response";
+
+function getPrismaCode(error: unknown): string | null {
+  if (error && typeof error === "object" && "code" in error) {
+    const code = (error as { code?: unknown }).code;
+    return typeof code === "string" ? code : null;
+  }
+  return null;
+}
 
 type RouteContext = {
   params: Promise<{
@@ -54,6 +62,9 @@ export async function PATCH(request: Request, context: RouteContext) {
     const project = await updateProjectAdmin(id, parsed.data);
     return success(project, 200, "Project updated");
   } catch (error) {
+    const code = getPrismaCode(error);
+    if (code === "P2025") return notFound("Project not found");
+    if (code === "P2002") return apiError("Slug already exists", 409);
     console.error("Failed to update project:", error);
     return internalError();
   }
@@ -68,6 +79,8 @@ export async function DELETE(request: Request, context: RouteContext) {
     const deleted = await deleteProjectAdmin(id);
     return success(deleted, 200, "Project deleted");
   } catch (error) {
+    const code = getPrismaCode(error);
+    if (code === "P2025") return notFound("Project not found");
     console.error("Failed to delete project:", error);
     return internalError();
   }

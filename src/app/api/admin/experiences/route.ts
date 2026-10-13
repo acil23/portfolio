@@ -5,10 +5,33 @@ import {
 import { createExperienceSchema } from "@/lib/validations/experience";
 import { requireAdminApi } from "@/lib/auth/admin-guard";
 import {
+  error as apiError,
   internalError,
   success,
   validationError,
 } from "@/lib/api/response";
+
+function getPrismaCode(error: unknown): string | null {
+  if (error && typeof error === "object" && "code" in error) {
+    const code = (error as { code?: unknown }).code;
+    return typeof code === "string" ? code : null;
+  }
+  return null;
+}
+
+function parseRequiredDate(value: string): Date {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) throw new Error("Invalid date");
+  return date;
+}
+
+function parseOptionalDate(value: string | null | undefined): Date | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null || value === "") return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) throw new Error("Invalid date");
+  return date;
+}
 
 export async function GET(request: Request) {
   const auth = await requireAdminApi(request);
@@ -37,13 +60,18 @@ export async function POST(request: Request) {
     const experience = await createExperienceAdmin({
       company: parsed.data.company,
       position: parsed.data.position,
-      startDate: new Date(parsed.data.startDate),
-      endDate: parsed.data.endDate ? new Date(parsed.data.endDate) : null,
+      startDate: parseRequiredDate(parsed.data.startDate),
+      endDate: parseOptionalDate(parsed.data.endDate),
       detail: parsed.data.detail,
     });
 
     return success(experience, 201, "Experience created");
   } catch (error) {
+    if (error instanceof Error && error.message === "Invalid date") {
+      return validationError({ formErrors: ["Invalid date format"], fieldErrors: {} });
+    }
+    const code = getPrismaCode(error);
+    if (code === "P2002") return apiError("Duplicate value", 409);
     console.error("Failed to create experience:", error);
     return internalError();
   }

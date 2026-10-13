@@ -5,10 +5,19 @@ import {
 import { createSkillSchema } from "@/lib/validations/skill";
 import { requireAdminApi } from "@/lib/auth/admin-guard";
 import {
+  error as apiError,
   internalError,
   success,
   validationError,
 } from "@/lib/api/response";
+
+function getPrismaCode(error: unknown): string | null {
+  if (error && typeof error === "object" && "code" in error) {
+    const code = (error as { code?: unknown }).code;
+    return typeof code === "string" ? code : null;
+  }
+  return null;
+}
 
 export async function GET(request: Request) {
   const auth = await requireAdminApi(request);
@@ -37,6 +46,8 @@ export async function POST(request: Request) {
     const skill = await createSkillAdmin(parsed.data);
     return success(skill, 201, "Skill created");
   } catch (error) {
+    const code = getPrismaCode(error);
+    if (code === "P2002") return apiError("Skill already exists", 409);
     console.error("Failed to create skill:", error);
     return internalError();
   }

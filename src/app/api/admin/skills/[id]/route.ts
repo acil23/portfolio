@@ -6,11 +6,20 @@ import {
 import { updateSkillSchema } from "@/lib/validations/skill";
 import { requireAdminApi } from "@/lib/auth/admin-guard";
 import {
+  error as apiError,
   internalError,
   notFound,
   success,
   validationError,
 } from "@/lib/api/response";
+
+function getPrismaCode(error: unknown): string | null {
+  if (error && typeof error === "object" && "code" in error) {
+    const code = (error as { code?: unknown }).code;
+    return typeof code === "string" ? code : null;
+  }
+  return null;
+}
 
 type RouteContext = {
   params: Promise<{
@@ -60,6 +69,9 @@ export async function PATCH(request: Request, context: RouteContext) {
 
     return success(skill, 200, "Skill updated");
   } catch (error) {
+    const code = getPrismaCode(error);
+    if (code === "P2025") return notFound("Skill not found");
+    if (code === "P2002") return apiError("Skill already exists", 409);
     console.error("Failed to update skill:", error);
     return internalError();
   }
@@ -81,6 +93,8 @@ export async function DELETE(request: Request, context: RouteContext) {
 
     return success(deleted, 200, "Skill deleted");
   } catch (error) {
+    const code = getPrismaCode(error);
+    if (code === "P2025") return notFound("Skill not found");
     console.error("Failed to delete skill:", error);
     return internalError();
   }
