@@ -3,8 +3,9 @@
 > **Author:** Senior Full-Stack Engineer (AI Assistant)
 > **Date:** 2026-10-13 (Original Audit) → **2026-10-14 (Fix Batch Updated)**
 > **Scope:** Original audit was pure plan (no code) based on `aklein_portfolio_SDD_final.docx`, `context_final.md`, `aklein_project_progress_tracker.md`, `prisma/schema.prisma`, `src/server/*`, `src/app/api/*`. On 2026-10-14 all HIGH/MEDIUM/LOW items marked "needs fix for V1" were implemented.
-> **Status:** Backend fixes complete — `npm run build ✓` (29 routes). Ready for Frontend Phase F1.
+> **Status:** Backend fixes complete — `npm run build ✓` (29 routes). **Frontend Design locked → Noir Editorial Luxury v1.0** (`DESIGN_SYSTEM.md`). Ready for Frontend Phase F1.
 > **Rule honored:** This review itself does **not** implement frontend/UI beyond fixes/SEO scaffolding listed below.
+> **Design System:** See [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md) — tokens, typography, motion, narrative. This file keeps scope + tracker; DESIGN_SYSTEM.md is the visual SSoT.
 
 ---
 
@@ -350,7 +351,12 @@ For each resource (order: Skills -> Experiences -> Educations -> Projects -> Sit
 - **LOW L-01/L-04/L-08/L-10:** ContactMessage endpoints, Tag CRUD, seed wiring, SEO scaffolding (`layout metadata`, `not-found`, `error`, `robots`, `sitemap`).
 - **New routes:** `POST /api/contact`, `GET /api/admin/contact`, `GET/PATCH/DELETE /api/admin/contact/[id]`, `GET /api/tags`, `GET/POST /api/admin/tags`, `GET/PATCH/DELETE /api/admin/tags/[id]`, `GET /api/site-profile` now public, `/robots.txt`, `/sitemap.xml`.
 
-**Next up:** Frontend F1 (Design Tokens & Layout) per section 7.
+**Next up:** Frontend F1 (Design Tokens & Layout) per section 7 — now with locked tokens in `DESIGN_SYSTEM.md`.
+
+### Design Lock — 2026-10-14
+- **Decision:** Noir Editorial Luxury v1.0 locked (user approved Concept 1). File: `DESIGN_SYSTEM.md`.
+- **Why:** HR wow in 7s — restraint is luxury, motion is meaning, typography is architecture. Gold accent 3%, blur reveal, parallax watermark, magnetic button, spotlight card, grain.
+- **Structure:** `DESIGN_SYSTEM.md` is the visual SSoT (colors OKLCH, fonts Cormorant+G eist, motion, component specs, narrative). `AI_REVIEW.md` remains the scope/audit SSoT.
 
 ---
 
