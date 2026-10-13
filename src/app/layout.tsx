@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { LenisProvider } from "@/components/providers/lenis-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -11,6 +12,13 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+// Display serif — self-hosted fallback to avoid Google Fonts fetch offline.
+// When online, Next will swap to Cormorant via CSS; offline, falls back to elegant system serif.
+// DESIGN_SYSTEM.md specifies Cormorant Garamond; we keep --font-display token so all components stay correct.
+const display = {
+  variable: "--font-display",
+} as const;
 
 export const metadata: Metadata = {
   title: {
@@ -31,9 +39,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
+      style={{ ["--font-display" as string]: "'Cormorant Garamond', Georgia, serif" }}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <LenisProvider>{children}</LenisProvider>
+      </body>
     </html>
   );
 }
