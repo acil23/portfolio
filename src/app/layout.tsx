@@ -22,25 +22,25 @@ const display = {
 
 export const metadata: Metadata = {
   title: {
-    default: "Aklein — Full-Stack Developer",
-    template: "%s | Aklein",
+    default: "Jupri Naldi — Full-Stack Developer",
+    template: "%s | JN",
   },
   description:
-    "Portfolio full-stack Aklein — Next.js, TypeScript, Prisma & Supabase. Projects, skills, experience, and contact.",
-  keywords: ["Aklein", "Full-Stack Developer", "Next.js", "TypeScript", "Prisma", "Supabase", "Portfolio"],
-  authors: [{ name: "Aklein" }],
-  creator: "Aklein",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+    "Portfolio Jupri Naldi (JN) — Full-Stack Developer. Next.js, TypeScript, Prisma, Supabase, PostgreSQL. Projects, skills, experience, and contact at aklein.tech.",
+  keywords: ["Jupri Naldi", "JN", "Aklein", "Full-Stack Developer", "Next.js", "TypeScript", "Prisma", "Supabase", "Portfolio", "aklein.tech"],
+  authors: [{ name: "Jupri Naldi" }],
+  creator: "Jupri Naldi",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://aklein.tech"),
   openGraph: {
     type: "website",
     locale: "en_US",
     siteName: "aklein.tech",
-    title: "Aklein — Full-Stack Developer",
+    title: "Jupri Naldi — Full-Stack Developer",
     description: "Ideas crafted into digital reality. Next.js, TypeScript, Prisma & Supabase.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Aklein — Full-Stack Developer",
+    title: "Jupri Naldi — Full-Stack Developer",
     description: "Ideas crafted into digital reality.",
   },
   robots: { index: true, follow: true },

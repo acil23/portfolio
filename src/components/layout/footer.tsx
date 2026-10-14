@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { BrandMark } from "@/components/brand/brand-mark";
 
 export function Footer() {
   return (
@@ -6,9 +6,12 @@ export function Footer() {
       <div className="mx-auto max-w-[1280px] px-6 py-12 md:px-8 md:py-16">
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="font-display text-2xl tracking-[-0.02em] text-foreground">
-              AKLEIN<span className="text-gold">.</span>
-            </p>
+            <div className="flex items-center gap-3">
+              <BrandMark size={36} variant="ghost" />
+              <p className="font-display text-2xl tracking-[-0.02em] text-foreground">
+                JN<span className="text-gold">.</span>
+              </p>
+            </div>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
               Crafting digital experiences with precision and taste. Based in Indonesia — available worldwide.
             </p>

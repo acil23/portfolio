@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { cn } from "cn";
+import { BrandMark } from "@/components/brand/brand-mark";
 
 // Opsi A Hybrid: anchor ke Home section dari mana pun (/#work). Di Home = smooth scroll, di /projects = balik ke Home.
 const NAV_LINKS = [
@@ -34,11 +35,11 @@ export function Navbar() {
       )}
     >
       <nav className="mx-auto flex h-[64px] max-w-[1280px] items-center justify-between px-6 md:px-8">
-        <Link
-          href="/"
-          className="font-display text-[20px] font-medium tracking-[-0.02em] text-foreground"
-        >
-          AKLEIN<span className="text-gold">.</span>
+        <Link href="/" className="flex items-center gap-3" aria-label="JN — Home">
+          <BrandMark size={32} variant="ghost" />
+          <span className="hidden sm:inline font-display text-[20px] font-medium tracking-[-0.02em] text-foreground">
+            JN<span className="text-gold">.</span>
+          </span>
         </Link>
 
         {/* Desktop */}
