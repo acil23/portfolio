@@ -1,0 +1,66 @@
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+type Img={url:string;alt?:string|null;order?:number};
+type P={id:string;title:string;slug:string;summary:string;description:string|null;isPublished:boolean;tags:{id:string;name:string}[];projectImages:Img[]};
+type T={id:string;name:string};
+const I="w-full rounded-xl border border-black/10 bg-[#FDFCFB] px-3 py-2.5 text-sm outline-none focus:border-gold/40";
+function emptyForm(){return {title:"",slug:"",summary:"",description:"",isPublished:false,tagIds:[] as string[],images:[] as Img[],newTag:"",newUrl:"",newAlt:""}}
+ export function ProjectsClient({initial,allTags}:{initial:P[];allTags:T[]}){
+ const rtr=useRouter();const[items,setItems]=useState(initial);const[tags,setTags]=useState(allTags);
+ const[form,setForm]=useState(emptyForm());const[editing,setEditing]=useState<string|null>(null);const[msg,setMsg]=useState<string|null>(null);const[loading,setLoading]=useState(false);
+ async function refresh(){const r=await fetch("/api/admin/projects");if(r.ok){const j=await r.json();setItems(j.data??[]) } }
+ async function refreshTags(){const r=await fetch("/api/admin/tags");if(r.ok){const j=await r.json();setTags(j.data??[]) } }
+ async function createTagInline(){const name=form.newTag.trim();if(!name)return;const r=await fetch("/api/admin/tags",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name})});if(r.ok){const j=await r.json();setTags(t=>[...t,j.data]);setForm(f=>({...f,tagIds:[...f.tagIds,j.data.id],newTag:""}))}else{const j=await r.json().catch(()=>null);setMsg(j?.message||"Tag failed")}}
+ function toggleTag(id:string){setForm(f=>({...f,tagIds:f.tagIds.includes(id)?f.tagIds.filter(x=>x!==id):[...f.tagIds,id]}))}
+   const[uploading,setUploading]=useState(false);
+  async function onFiles(files:FileList|null){if(!files||!files.length)return;if(form.images.length>=20){setMsg("Max 20 images");return;}setUploading(true);setMsg(null);
+   const slots=Math.max(0,20-form.images.length);const queue=Array.from(files).slice(0,slots);
+   if(queue.length<files.length) setMsg(`Only ${slots} slots left — ${files.length-queue.length} skipped (max 20)`);
+   for(const f of queue){const fd=new FormData();fd.append("file",f);fd.append("folder","projects");
+    try{const r=await fetch("/api/admin/media",{method:"POST",body:fd});const j=await r.json();if(!r.ok)throw new Error(j.message||"Upload failed");
+     setForm(s=>s.images.length>=20?s:{...s,images:[...s.images,{url:j.data.url,alt:f.name,order:s.images.length}]})
+    }catch(e:unknown){setMsg(e instanceof Error?e.message:"Upload failed");break;}}
+   setUploading(false)}
+function addImage(){const u=form.newUrl.trim();if(!u)return;if(form.images.length>=20){setMsg("Max 20 images");return;}setForm(f=>({...f,images:[...f.images,{url:u,alt:f.newAlt||null,order:f.images.length}],newUrl:"",newAlt:""}))}
+ function rmImage(i:number){setForm(f=>({...f,images:f.images.filter((_,idx)=>idx!==i).map((im,idx)=>({...im,order:idx}))}))}
+ function move(i:number,dir:-1|1){const j=i+dir;if(j<0||j>=form.images.length)return;setForm(f=>{const a=[...f.images];[a[i],a[j]]=[a[j],a[i]];return{...f,images:a.map((im,idx)=>({...im,order:idx}))}})}
+ async function submit(e:React.FormEvent){e.preventDefault();setLoading(true);setMsg(null);
+  try{const body={title:form.title,slug:form.slug,summary:form.summary,description:form.description||null,isPublished:form.isPublished,tagIds:form.tagIds,images:form.images};
+   const url=editing?`/api/admin/projects/${editing}`:"/api/admin/projects";const method=editing?"PATCH":"POST";
+   const res=await fetch(url,{method,headers:{"content-type":"application/json"},body:JSON.stringify(body)});const j=await res.json();if(!res.ok){setMsg(j.message||JSON.stringify(j.errors??j));return;}
+   setForm(emptyForm());setEditing(null);await refresh();setMsg(editing?"Updated":"Created");rtr.refresh();
+  }finally{setLoading(false)}}
+ function edit(p:P){setEditing(p.id);setForm({title:p.title,slug:p.slug,summary:p.summary,description:p.description??"",isPublished:p.isPublished,tagIds:p.tags.map(t=>t.id),images:p.projectImages.map((im,i)=>({url:im.url,alt:im.alt??"",order:im.order??i})),newTag:"",newUrl:"",newAlt:""});scrollTo({top:0,behavior:"smooth"})}
+ async function del(id:string){if(!confirm("Delete?"))return;const x=await fetch(`/api/admin/projects/${id}`,{method:"DELETE"});if(x.ok){await refresh();setMsg("Deleted");rtr.refresh()}}
+ async function tog(p:P){const x=await fetch(`/api/admin/projects/${p.id}`,{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({isPublished:!p.isPublished})});if(x.ok)refresh()}
+ return(<div className="space-y-6">
+  <form onSubmit={submit} className="rounded-2xl border border-black/10 bg-white p-6">
+   <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-black/40">{editing?"Edit":"New"} project</p>
+   <div className="mt-4 grid gap-4 md:grid-cols-2">
+    <label className="space-y-1.5"><span className="font-mono text-[11px] text-black/60">Title *</span><input value={form.title} onChange={e=>setForm({...form,title:e.target.value})} required className={I}/></label>
+    <label className="space-y-1.5"><span className="font-mono text-[11px] text-black/60">Slug *</span><input value={form.slug} onChange={e=>setForm({...form,slug:e.target.value})} placeholder="project-atlas" required className={I}/></label>
+    <label className="space-y-1.5 md:col-span-2"><span className="font-mono text-[11px] text-black/60">Summary *</span><input value={form.summary} onChange={e=>setForm({...form,summary:e.target.value})} required className={I}/></label>
+    <label className="space-y-1.5 md:col-span-2"><span className="font-mono text-[11px] text-black/60">Description</span><textarea value={form.description} onChange={e=>setForm({...form,description:e.target.value})} rows={3} className={I}/></label>
+    <label className="flex items-center gap-2"><input type="checkbox" checked={form.isPublished} onChange={e=>setForm({...form,isPublished:e.target.checked})} className="h-4 w-4 accent-black"/><span className="font-mono text-xs text-black/60">Published</span></label>
+   </div>
+   <div className="mt-5 rounded-xl border border-black/10 bg-[#FDFCFB] p-4">
+    <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-black/40">Tags</p>
+    <div className="mt-3 flex flex-wrap gap-2">{tags.map(t=><button key={t.id} type="button" onClick={()=>toggleTag(t.id)} className={`rounded-full border px-3 py-1.5 font-mono text-[11px] transition ${form.tagIds.includes(t.id)?"border-black bg-black text-white":"border-black/10 bg-white text-black/60 hover:border-gold/30"}`}>{t.name}</button>)}{tags.length===0&&<span className="font-mono text-xs text-black/30">No tags yet</span>}</div>
+    <div className="mt-3 flex gap-2"><input value={form.newTag} onChange={e=>setForm({...form,newTag:e.target.value})} placeholder="New tag name" className="flex-1 rounded-full border border-black/10 bg-white px-3 py-2 text-sm outline-none focus:border-gold/40"/><button type="button" onClick={createTagInline} className="rounded-full border border-black/10 bg-white px-4 text-sm hover:border-gold/30">+ Add tag</button><button type="button" onClick={refreshTags} className="rounded-full border border-black/10 bg-white px-3 text-sm">&#8635;</button></div>
+   </div>
+   <div className="mt-5 rounded-xl border border-black/10 bg-[#FDFCFB] p-4">
+    <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-black/40">Gallery — URLs (ordered, first = cover)</p>
+    {form.images.length>0&&<div className="mt-3 grid gap-2">{form.images.map((im,i)=><div key={i} className="flex items-center gap-2 rounded-xl border border-black/10 bg-white p-2"><img src={im.url} alt={im.alt??""} className="h-12 w-16 rounded-lg object-cover"/><span className="flex-1 truncate font-mono text-xs text-black/60">{im.url}</span><span className="font-mono text-[10px] text-black/30">#{i+1}</span><button type="button" onClick={()=>move(i,-1)} disabled={i===0} className="rounded-full border border-black/10 px-2 py-1 font-mono text-[10px] disabled:opacity-30">&uarr;</button><button type="button" onClick={()=>move(i,1)} disabled={i===form.images.length-1} className="rounded-full border border-black/10 px-2 py-1 font-mono text-[10px] disabled:opacity-30">&darr;</button><button type="button" onClick={()=>rmImage(i)} className="rounded-full border border-red-200 bg-red-50 px-2 py-1 font-mono text-[10px] text-red-600">&#10005;</button></div>)}</div>}
+    <label onDragOver={(e)=>e.preventDefault()} onDrop={(e)=>{e.preventDefault();onFiles(e.dataTransfer.files)}} className="mt-3 flex flex-col items-center gap-2 rounded-xl border border-dashed border-black/15 bg-white px-4 py-6 text-center hover:border-gold/40 cursor-pointer"><span className="font-mono text-xs text-black/60">{uploading?"Uploading...":"Drag & drop images here or click to upload"}</span><span className="rounded-full bg-black px-4 py-1.5 text-xs font-medium text-white">{uploading?"Please wait...":form.images.length>=20?"Max 20 reached":"Choose files"}</span><input type="file" accept="image/*" multiple className="hidden" onChange={(e)=>onFiles(e.target.files as FileList)} disabled={uploading}/><span className="font-mono text-[10px] text-black/30">image/* max 5MB, portfolio/projects/ (or paste URL below)</span></label><div className="mt-3 grid gap-2 md:grid-cols-[1fr_160px_auto]"><input value={form.newUrl} onChange={e=>setForm({...form,newUrl:e.target.value})} placeholder="https://... image url" className="rounded-full border border-black/10 bg-white px-3 py-2 text-sm outline-none focus:border-gold/40"/><input value={form.newAlt} onChange={e=>setForm({...form,newAlt:e.target.value})} placeholder="alt (optional)" className="rounded-full border border-black/10 bg-white px-3 py-2 text-sm outline-none focus:border-gold/40"/><button type="button" onClick={addImage} className="rounded-full bg-black px-4 py-2 text-sm font-medium text-white">+ Add</button></div>
+    <p className="mt-2 font-mono text-[10px] text-black/30">{form.images.length}/20 — First image = cover di /projects.</p>
+   </div>
+   <div className="mt-5 flex gap-2"><button disabled={loading} className="h-10 rounded-full bg-black px-5 text-sm font-medium text-white disabled:opacity-60">{loading?"...":editing?"Update":"Create"}</button>{editing&&<button type="button" onClick={()=>{setEditing(null);setForm(emptyForm())}} className="h-10 rounded-full border border-black/10 px-5 text-sm">Cancel</button>}</div>
+   {msg&&<p className="mt-3 font-mono text-xs text-gold break-all">{msg}</p>}
+  </form>
+  <div className="overflow-x-auto rounded-2xl border border-black/10 bg-white">
+   <table className="w-full text-sm"><thead><tr className="border-b border-black/5 bg-black/[0.02]"><th className="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-[0.1em] text-black/40">Title</th><th className="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-[0.1em] text-black/40">Slug</th><th className="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-[0.1em] text-black/40">Tags</th><th className="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-[0.1em] text-black/40">Gallery</th><th className="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-[0.1em] text-black/40">Status</th><th className="px-4 py-3 text-right font-mono text-[10px] uppercase tracking-[0.1em] text-black/40">Actions</th></tr></thead>
+   <tbody>{items.length===0?<tr><td colSpan={6} className="px-4 py-10 text-center font-mono text-xs text-black/30">No projects yet</td></tr>:items.map(p=><tr key={p.id} className="border-b border-black/5 last:border-0"><td className="px-4 py-3 font-medium">{p.title}</td><td className="px-4 py-3 font-mono text-xs text-black/50">/{p.slug}</td><td className="px-4 py-3"><div className="flex flex-wrap gap-1">{p.tags.length? p.tags.map(t=><span key={t.id} className="rounded-full bg-black/5 px-2 py-0.5 font-mono text-[10px] text-black/60">{t.name}</span>):<span className="font-mono text-xs text-black/20">&#8212;</span>}</div></td><td className="px-4 py-3"><div className="flex gap-1">{p.projectImages.length? p.projectImages.slice(0,3).map((im,i)=><img key={i} src={im.url} alt="" className="h-8 w-10 rounded object-cover border border-black/10"/>):<span className="font-mono text-xs text-black/20">&#8212;</span>}{p.projectImages.length>3&&<span className="font-mono text-[10px] text-black/30">+{p.projectImages.length-3}</span>}</div></td><td className="px-4 py-3"><button onClick={()=>tog(p)} className={`rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.08em] border ${p.isPublished?"bg-green-50 text-green-700 border-green-200":"bg-black/5 text-black/50 border-black/10"}`}>{p.isPublished?"Published":"Draft"}</button></td><td className="px-4 py-3 text-right"><div className="flex justify-end gap-2"><button onClick={()=>edit(p)} className="rounded-full border border-black/10 px-3 py-1.5 font-mono text-[11px]">Edit</button><button onClick={()=>del(p.id)} className="rounded-full border border-red-200 bg-red-50 px-3 py-1.5 font-mono text-[11px] text-red-600">Delete</button></div></td></tr>)}</tbody></table>
+  </div>
+ </div>)
+}

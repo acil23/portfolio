@@ -1,9 +1,8 @@
 "use client";
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 export default function LoginPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,9 +15,11 @@ export default function LoginPage() {
     setError(null);
     try {
       const res = await fetch("/api/auth/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email, password }) });
-      if (!res.ok) { setError("Invalid email or password."); return; }
-      router.push("/dashboard");
-      router.refresh();
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) { setError((body as { message?: string })?.message || "Invalid email or password."); return; }
+      // Cookie is httpOnly — must hard-navigate so browser sends it and middleware/layout re-reads it
+      const next = searchParams.get("next") || "/dashboard";
+      window.location.assign(next);
     } catch { setError("Login failed. Try again."); } finally { setIsSubmitting(false); }
   }
   return (

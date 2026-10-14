@@ -33,15 +33,15 @@ function getSessionSecret() {
   return secret;
 }
 
-function base64UrlEncode(value: string) {
-  const bytes = textEncoder.encode(value);
+function bytesToBase64Url(bytes: Uint8Array) {
   let binary = "";
-
-  for (const byte of bytes) {
-    binary += String.fromCharCode(byte);
-  }
-
+  for (const b of bytes) binary += String.fromCharCode(b);
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function base64UrlEncode(value: string) {
+  // UTF-8 string -> bytes -> base64url (for JSON payload)
+  return bytesToBase64Url(textEncoder.encode(value));
 }
 
 function base64UrlDecode(value: string) {
@@ -49,8 +49,7 @@ function base64UrlDecode(value: string) {
   const padding = base64.length % 4;
   const normalized = padding ? base64.padEnd(base64.length + (4 - padding), "=") : base64;
   const binary = atob(normalized);
-  const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
-
+  const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
   return textDecoder.decode(bytes);
 }
 
@@ -59,8 +58,7 @@ function base64UrlDecodeBytes(value: string) {
   const padding = base64.length % 4;
   const normalized = padding ? base64.padEnd(base64.length + (4 - padding), "=") : base64;
   const binary = atob(normalized);
-
-  return Uint8Array.from(binary, (character) => character.charCodeAt(0));
+  return Uint8Array.from(binary, (c) => c.charCodeAt(0));
 }
 
 function readCookieValue(cookieHeader: string | null, name: string) {
@@ -92,8 +90,8 @@ async function getHmacKey() {
 async function signValue(value: string) {
   const key = await getHmacKey();
   const signature = await crypto.subtle.sign("HMAC", key, textEncoder.encode(value));
-
-  return base64UrlEncode(String.fromCharCode(...new Uint8Array(signature)));
+  // FIX: raw HMAC bytes -> base64url directly. Never interpret bytes as string (corrupts >127).
+  return bytesToBase64Url(new Uint8Array(signature));
 }
 
 async function verifyValue(value: string, signature: string) {

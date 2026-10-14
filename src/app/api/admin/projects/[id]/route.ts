@@ -73,10 +73,25 @@ export async function PATCH(request: Request, context: RouteContext) {
 export async function DELETE(request: Request, context: RouteContext) {
   const auth = await requireAdminApi(request);
   if (!auth.ok) return auth.response;
-
   try {
     const { id } = await context.params;
+    const existing = await fetchProjectAdminById(id);
+    if (!existing) return notFound("Project not found");
+    const supaUrls = (existing.projectImages ?? []).map((im) => im.url).filter(Boolean);
     const deleted = await deleteProjectAdmin(id);
+    // best-effort: remove associated Media + storage objects (only our Supabase bucket)
+    try {
+      const { getSupabaseAdmin, getBucket, urlToStoragePath } = await import("@/lib/supabase/server");
+      const { prisma } = await import("@/lib/db/prisma");
+      const paths = supaUrls.map((u) => urlToStoragePath(u)).filter(Boolean) as string[];
+      if (paths.length) {
+        const supabase = getSupabaseAdmin();
+        await supabase.storage.from(getBucket()).remove(paths);
+      }
+      if (supaUrls.length) {
+        await prisma.media.deleteMany({ where: { url: { in: supaUrls } } });
+      }
+    } catch (e) { console.warn("cleanup storage/media after delete failed", e); }
     return success(deleted, 200, "Project deleted");
   } catch (error) {
     const code = getPrismaCode(error);

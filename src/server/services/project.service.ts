@@ -36,6 +36,8 @@ export async function createProjectAdmin(data: {
   summary: string;
   description?: string | null;
   isPublished?: boolean;
+  tagIds?: string[];
+  images?: { url: string; alt?: string | null; order?: number }[];
 }) {
   return createProject(data);
 }
@@ -48,6 +50,8 @@ export async function updateProjectAdmin(
     summary?: string;
     description?: string | null;
     isPublished?: boolean;
+    tagIds?: string[];
+    images?: { url: string; alt?: string | null; order?: number }[];
   }
 ) {
   return updateProject(id, data);

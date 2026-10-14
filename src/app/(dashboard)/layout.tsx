@@ -6,10 +6,12 @@ import { LogoutButton } from "@/components/dashboard/logout-button";
 
 const NAV = [
   { href: "/dashboard", label: "Overview", mono: "01" },
-  { href: "/dashboard", label: "Projects", mono: "02" },
-  { href: "/dashboard", label: "Skills", mono: "03" },
-  { href: "/dashboard", label: "Experience", mono: "04" },
-  { href: "/dashboard", label: "Inbox", mono: "05" },
+  { href: "/dashboard/projects", label: "Projects", mono: "02" },
+  { href: "/dashboard/skills", label: "Skills", mono: "03" },
+  { href: "/dashboard/experiences", label: "Experience", mono: "04" },
+  { href: "/dashboard/educations", label: "Education", mono: "05" },
+  { href: "/dashboard/inbox", label: "Inbox", mono: "06" },
+  { href: "/dashboard/site-profile", label: "Site Profile", mono: "07" },
 ] as const;
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
