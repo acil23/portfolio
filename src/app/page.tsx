@@ -6,6 +6,7 @@ import { Philosophy } from "@/components/sections/philosophy";
 import { ExperienceRail } from "@/components/sections/experience-rail";
 import { SkillsBento } from "@/components/sections/skills-bento";
 import { ContactCta } from "@/components/sections/contact-cta";
+import { CursorParticleTrail } from "@/components/ui/cursor-particle-trail";
 import { fetchSiteProfile } from "@/server/services/site-profile.service";
 import { fetchPublishedProjects } from "@/server/services/project.service";
 import { fetchSkills } from "@/server/services/skill.service";
@@ -24,10 +25,11 @@ export default async function Home() {
   ]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0A0A0A]">
+    <div className="flex min-h-screen flex-col bg-[#060609] text-white">
+      <CursorParticleTrail />
       <Navbar />
       <main className="flex-1">
-        <Hero profile={siteProfile as never} />
+        <Hero profile={siteProfile as never} projects={projects as never} />
         <SelectedWorks projects={projects as never} />
         <Philosophy profile={siteProfile as never} />
         <ExperienceRail experiences={experiences as never} educations={educations as never} />

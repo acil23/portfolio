@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { SectionHeader } from "@/components/ui/section-header";
+import { motion } from "framer-motion";
+import { ArrowUpRight } from "lucide-react";
 
 export function ContactCta() {
   const [name, setName] = useState("");
@@ -22,7 +23,8 @@ export function ContactCta() {
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const msg = json?.message || json?.issues ? JSON.stringify(json.issues) : "Failed to send";
+        const msg =
+          json?.message || (json?.issues ? JSON.stringify(json.issues) : "Failed to send");
         throw new Error(msg);
       }
       setStatus("success");
@@ -36,62 +38,108 @@ export function ContactCta() {
   }
 
   return (
-    <section id="contact" className="bg-[#0A0A0A] px-6 py-24 md:px-8 md:py-32">
-      <div className="mx-auto max-w-[1280px]">
-        <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#141414] px-8 py-12 md:px-12 md:py-16">
-          <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gold/10 blur-[80px]" />
-          <SectionHeader
-            overline="Contact"
-            title="Let's build something — remarkable."
-            description="Have a role, a product, or a wild idea? I reply within 24 hours. No recruiters spam — just real work."
-          />
+    <section id="contact" className="relative overflow-hidden bg-[#060609] px-6 py-24 md:px-10 md:py-32">
+      <div className="hud-grid-overlay pointer-events-none absolute inset-0 opacity-30" />
+
+      <div className="relative mx-auto max-w-[1380px]">
+        <div className="glass-obsidian-gold relative overflow-hidden rounded-[30px] px-8 py-12 md:px-14 md:py-16">
+          <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-[#e5c168]/15 blur-[100px]" />
+          <div className="pointer-events-none absolute -left-24 -bottom-24 h-80 w-80 rounded-full bg-[#93c5fd]/10 blur-[100px]" />
+
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6">
+            <div className="flex items-center gap-3">
+              <span className="h-2 w-2 rounded-full bg-[#4ade80] shadow-[0_0_10px_#4ade80]" />
+              <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-[#f5d782]">
+                06 // DIRECT TRANSMISSION CHANNEL
+              </p>
+            </div>
+            <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/45">
+              RESPONSE SLA: &lt; 24 HOURS
+            </span>
+          </div>
+
+          <h2 className="mt-6 font-display text-[clamp(34px,5vw,60px)] font-light leading-[0.95] tracking-[-0.02em] text-white">
+            Initiate a <span className="text-metallic-gold italic">collaboration</span>.
+          </h2>
+          <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-white/65">
+            Have an ambitious product, interactive 3D showcase, or full-stack platform? Transmit
+            your brief below.
+          </p>
+
           <form onSubmit={onSubmit} className="mt-10 grid gap-6 md:grid-cols-2">
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Name</span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#f5d782]/80">
+                01. IDENTIFIER / NAME
+              </span>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
                 maxLength={100}
-                placeholder="Ada Lovelace"
-                className="border-b border-white/15 bg-transparent py-3 text-sm text-foreground placeholder:text-white/30 focus:border-gold focus:outline-none"
+                placeholder="Arthur Vane"
+                className="rounded-xl border border-white/15 bg-black/40 px-4 py-3.5 text-sm text-white placeholder:text-white/30 focus:border-[#f5d782] focus:outline-none"
               />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Email</span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#f5d782]/80">
+                02. RETURN ADDRESS / EMAIL
+              </span>
               <input
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 type="email"
-                placeholder="ada@company.com"
-                className="border-b border-white/15 bg-transparent py-3 text-sm text-foreground placeholder:text-white/30 focus:border-gold focus:outline-none"
+                placeholder="arthur@studio.com"
+                className="rounded-xl border border-white/15 bg-black/40 px-4 py-3.5 text-sm text-white placeholder:text-white/30 focus:border-[#f5d782] focus:outline-none"
               />
             </label>
             <label className="flex flex-col gap-2 md:col-span-2">
-              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Message</span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#f5d782]/80">
+                03. PROJECT PARAMETERS / MESSAGE
+              </span>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 required
                 minLength={10}
                 maxLength={5000}
-                placeholder="Tell me about the opportunity..."
+                placeholder="Tell me about the scope, timeline, and vision..."
                 rows={4}
-                className="resize-none border-b border-white/15 bg-transparent py-3 text-sm text-foreground placeholder:text-white/30 focus:border-gold focus:outline-none"
+                className="resize-none rounded-xl border border-white/15 bg-black/40 px-4 py-3.5 text-sm text-white placeholder:text-white/30 focus:border-[#f5d782] focus:outline-none"
               />
             </label>
-            <div className="md:col-span-2">
-              <button
+
+            <div className="md:col-span-2 flex flex-wrap items-center justify-between gap-4 pt-2">
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
                 type="submit"
                 disabled={status === "loading"}
-                className="inline-flex h-12 items-center gap-2 rounded-full bg-foreground px-7 text-sm font-medium text-background transition-colors hover:bg-foreground/90 disabled:opacity-60"
+                className="inline-flex h-12 items-center gap-2.5 rounded-full border border-[#f5d782]/70 bg-gradient-to-b from-[#f5d782]/25 to-[#09090d] px-8 font-mono text-xs font-medium uppercase tracking-[0.18em] text-[#fff6d6] shadow-[0_0_28px_rgba(212,175,55,0.3)] transition-all hover:border-[#fff2ba] hover:shadow-[0_0_36px_rgba(212,175,55,0.5)] disabled:opacity-60"
               >
-                {status === "loading" ? "Sending..." : status === "success" ? "Sent ✓" : "Send Inquiry →"}
-              </button>
-              {status === "success" && <p className="mt-3 font-mono text-[11px] text-green-400">Message sent — I&apos;ll reply within 24h.</p>}
-              {status === "error" && <p className="mt-3 font-mono text-[11px] text-red-400">{errorMsg}</p>}
-              {status === "idle" && <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.08em] text-muted-foreground/60">Posts to POST /api/contact — saved to dashboard inbox.</p>}
+                <span>
+                  {status === "loading"
+                    ? "TRANSMITTING..."
+                    : status === "success"
+                      ? "TRANSMISSION RECEIVED ✓"
+                      : "TRANSMIT BRIEF"}
+                </span>
+                <ArrowUpRight className="h-4 w-4 text-[#f5d782]" />
+              </motion.button>
+
+              {status === "success" && (
+                <p className="font-mono text-xs text-[#4ade80]">
+                  Transmission logged — I&apos;ll respond within 24h.
+                </p>
+              )}
+              {status === "error" && (
+                <p className="font-mono text-xs text-red-400">{errorMsg}</p>
+              )}
+              {status === "idle" && (
+                <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">
+                  ENCRYPTED ENDPOINT: POST /API/CONTACT
+                </p>
+              )}
             </div>
           </form>
         </div>
